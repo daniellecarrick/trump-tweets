@@ -10,6 +10,7 @@ var parseTime = d3.timeParse("%a %b %d %H:%M:%S %Z %Y");
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 var r = d3.scaleLinear().range([5,100]);
+var color = d3.scaleSequential(d3.interpolateMagma);
 
 
 // append the svg obgect to the body of the page
@@ -37,6 +38,11 @@ d3.csv("tweets.csv", function(error, data) {
   x.domain(d3.extent(data, function(d) { return d.created_at; }));
   y.domain([0, d3.max(data, function(d) { return d.retweet_count; })]);
   r.domain(d3.extent(data, function(d) { return d.favorite_count; }));
+  color.domain([d3.max(data, function(d) { return d.favorite_count; }), d3.min(data, function(d) { return d.favorite_count; })]);
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
   // Add the scatterplot
   svg.selectAll("dot")
@@ -44,7 +50,21 @@ d3.csv("tweets.csv", function(error, data) {
     .enter().append("circle")
       .attr("r", function(d) { return r(d.favorite_count); })
       .attr("cx", function(d) { return x(d.created_at); })
-      .attr("cy", function(d) { return y(d.retweet_count); });
+      .attr("cy", function(d) { return y(d.retweet_count); })
+      .style("fill", function(d) {return color(d.favorite_count); })
+      .on("mouseover", function(d) {
+       div.transition()
+         .duration(200)
+         .style("opacity", .9);
+       div.html(d.created_at + "<br/>" + d.text)
+         .style("left", (d3.event.pageX) + "px")
+         .style("top", (d3.event.pageY - 28) + "px");
+       })
+     .on("mouseout", function(d) {
+       div.transition()
+         .duration(500)
+         .style("opacity", 0);
+       });
 
   // Add the X Axis
   svg.append("g")
