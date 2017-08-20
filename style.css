@@ -1,5 +1,4 @@
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2px;
+circle {
+  fill: black;
+  opacity: .2;
 }

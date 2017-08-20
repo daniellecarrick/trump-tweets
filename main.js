@@ -1,20 +1,16 @@
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
+    width = window.innerWidth - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // parse the date / time
-//var parseTime = d3.timeParse("%d-%b-%y");
 var parseTime = d3.timeParse("%a %b %d %H:%M:%S %Z %Y");
 
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
+var r = d3.scaleLinear().range([5,100]);
 
-// define the line
-/*var valueline = d3.line()
-    .x(function(d) { return x(d.created_at); })
-    .y(function(d) { return y(d.retweet_count); });*/
 
 // append the svg obgect to the body of the page
 // appends a 'group' element to 'svg'
@@ -34,23 +30,19 @@ d3.csv("tweets.csv", function(error, data) {
   data.forEach(function(d) {
       d.created_at = parseTime(d.created_at);
       d.retweet_count = +d.retweet_count;
+      d.favorite_count = +d.favorite_count;
   });
 
   // Scale the range of the data
   x.domain(d3.extent(data, function(d) { return d.created_at; }));
   y.domain([0, d3.max(data, function(d) { return d.retweet_count; })]);
-
-  // Add the valueline path.
-/*  svg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .attr("d", valueline);*/
+  r.domain(d3.extent(data, function(d) { return d.favorite_count; }));
 
   // Add the scatterplot
   svg.selectAll("dot")
       .data(data)
     .enter().append("circle")
-      .attr("r", 5)
+      .attr("r", function(d) { return r(d.favorite_count); })
       .attr("cx", function(d) { return x(d.created_at); })
       .attr("cy", function(d) { return y(d.retweet_count); });
 
