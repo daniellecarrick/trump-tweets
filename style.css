@@ -33,3 +33,14 @@ circle {
   top: 100%;
   left: 0;
 }
+
+/* AXIS */
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  stroke-opacity: 0.3;
+  shape-rendering: crispEdges;
+}
