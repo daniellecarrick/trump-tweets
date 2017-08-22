@@ -37,9 +37,9 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-var calculateRadius = function(retweets, favorites) {
-    var result = Math.sqrt((retweets + favorites)/Math.PI);
-    console.log(result);
+var calculateRadius = function(area) {
+    var result = Math.sqrt(area/Math.PI);
+    //console.log(result);
     return result;  
 }
 
@@ -52,31 +52,35 @@ d3.csv("tweets.csv", function(error, data) {
         d.created_at = parseTime(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
+        d.total_social = +d.retweet_count + +d.favorite_count;
+        console.log(d.total_social);
     });
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
-    //y.domain([0, d3.max(data, function(d) { return d.retweet_count; })]);
-    y.domain([0, 100000]);
-    r.domain(d3.extent(data, function(d) {
-        return d.favorite_count; }));
+    y.domain([0, d3.max(data, function(d) { return d.total_social; })]);
+   // y.domain([0, 100000]);
+/*    r.domain(d3.extent(data, function(d) {
+        return calculateRadius(d.favorite_count + d.retweet_count); }));*/
+    r.domain([50,1000]);
+
     color.domain([d3.max(data, function(d) {
-        return d.favorite_count; }), d3.min(data, function(d) {
-        return d.favorite_count; })]);
+        return d.total_social; }), d3.min(data, function(d) {
+        return d.total_social; })]);
 
     // Add the scatterplot
     container.selectAll("dot")
         .data(data)
         .enter().append("circle")
         .attr("r", function(d) {
-            return r(calculateRadius(d.favorite_count,d.retweet_count)); })
+            return r(calculateRadius(d.total_social)); })
         .attr("cx", function(d) {
             return x(d.created_at); })
         .attr("cy", function(d) {
-            return y(d.retweet_count); })
+            return y(d.total_social); })
         .style("fill", function(d) {
-            return color(d.favorite_count); })
+            return color(d.total_social); })
         .on("mouseover", function(d) {
             tooltip.transition()
                 .duration(200)
