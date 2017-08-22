@@ -29,6 +29,7 @@ h1 {
     color: #fff;
     border-radius: 2px;
     position: absolute;
+    max-width: 400px;
 }
 
 
@@ -53,6 +54,16 @@ h1 {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
+}
+
+.date, .retweet-stats {
+    font-weight: lighter;
+    font-size: 12px;
+}
+
+.tweet-text {
+    margin: 10px 0px; 
+    display: block;
 }
 
 
