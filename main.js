@@ -37,6 +37,12 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+var calculateRadius = function(retweets, favorites) {
+    var result = Math.sqrt((retweets + favorites)/Math.PI);
+    console.log(result);
+    return result;  
+}
+
 // Get the data
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
@@ -64,7 +70,7 @@ d3.csv("tweets.csv", function(error, data) {
         .data(data)
         .enter().append("circle")
         .attr("r", function(d) {
-            return r(d.favorite_count); })
+            return r(calculateRadius(d.favorite_count,d.retweet_count)); })
         .attr("cx", function(d) {
             return x(d.created_at); })
         .attr("cy", function(d) {
