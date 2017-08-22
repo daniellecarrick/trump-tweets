@@ -3,8 +3,11 @@ var margin = { top: 20, right: 20, bottom: 30, left: 50 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom -100;
 
-// parse the date / time
+// parse the given data into something the computer understands
 var parseTime = d3.timeParse("%a %b %d %H:%M:%S %Z %Y");
+
+// Now format the date to something people can understand
+var formatDate = d3.timeFormat("%B %d, %Y");
 
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
@@ -72,7 +75,7 @@ d3.csv("tweets.csv", function(error, data) {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
-            tooltip.html(d.created_at + "<br/>" + d.text + "<br/>" + "Retweets: " + d.retweet_count + "<br/>" + "Favorites: " + d.favorite_count)
+            tooltip.html("<span class='date'>" + formatDate(d.created_at) + "</span><br/><span class='tweet-text'>" + d.text + "</span><br/>" + "<span class='retweet-stats'>Retweets: " + d.retweet_count + "<br/>" + "Favorites: " + d.favorite_count + "</span>")
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         })
