@@ -40,19 +40,32 @@ var tooltip = d3.select("body").append("div")
 // Get the data
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
-
+   // var filter = "fake news";
     // format the data
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
+        if (d.text.indexOf(filter) !== -1) {
+        console.log(d.text);
+    }
     });
+
+    var filter = function() {
+        for(d of data) {
+            if (d.text.indexOf("fake news") !== -1) {
+                 console.log(d.text)
+            }
+        }
+    }
+
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
-    //y.domain([0, d3.max(data, function(d) { return d.retweet_count; })]);
-    y.domain([0, 100000]);
+    y.domain([0, 50000]);
+    //.domain([0, d3.max(data, function(d) {
+      //  return d.favorite_count; })]);
     r.domain(d3.extent(data, function(d) {
         return d.favorite_count; }));
     color.domain([d3.max(data, function(d) {
@@ -60,8 +73,9 @@ d3.csv("tweets.csv", function(error, data) {
         return d.favorite_count; })]);
 
     // Add the scatterplot
-    container.selectAll("dot")
+   container.selectAll("dot")
         .data(data)
+       // .filter(function(d) { if (d.text.indexOf("fake news") !== -1) {return d}  })
         .enter().append("circle")
         .attr("r", function(d) {
             return r(d.favorite_count); })
@@ -69,6 +83,7 @@ d3.csv("tweets.csv", function(error, data) {
             return x(d.created_at); })
         .attr("cy", function(d) {
             return y(d.retweet_count); })
+        .attr("class", "bubble")
         .style("fill", function(d) {
             return color(d.favorite_count); })
         .on("mouseover", function(d) {
@@ -122,7 +137,7 @@ var gY = svg.append("g")
 svg.call(zoom);
 
 function zoomed() {
-    container.attr("transform", d3.event.transform);
-    gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+    //d3.selectAll('.bubble').attr("transform", d3.event.transform);
+   // gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
     gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
 }
