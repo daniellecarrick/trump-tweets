@@ -37,6 +37,12 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+var calculateRadius = function(area) {
+    var result = Math.sqrt(area/Math.PI);
+    //console.log(result);
+    return result;  
+}
+
 // Get the data
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
@@ -46,9 +52,12 @@ d3.csv("tweets.csv", function(error, data) {
         d.created_at = parseTime(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
+        d.total_social = +d.retweet_count + +d.favorite_count;
+        console.log(d.total_social);
         if (d.text.indexOf(filter) !== -1) {
         console.log(d.text);
     }
+
     });
 
     var filter = function() {
@@ -63,14 +72,13 @@ d3.csv("tweets.csv", function(error, data) {
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
-    y.domain([0, 50000]);
-    //.domain([0, d3.max(data, function(d) {
-      //  return d.favorite_count; })]);
-    r.domain(d3.extent(data, function(d) {
-        return d.favorite_count; }));
+    y.domain([0, d3.max(data, function(d) { return d.total_social; })]);
+/*    r.domain(d3.extent(data, function(d) {
+        return calculateRadius(d.favorite_count + d.retweet_count); }));*/
+    r.domain([50,1000]);
     color.domain([d3.max(data, function(d) {
-        return d.favorite_count; }), d3.min(data, function(d) {
-        return d.favorite_count; })]);
+        return d.total_social; }), d3.min(data, function(d) {
+        return d.total_social; })]);
 
     // Add the scatterplot
    container.selectAll("dot")
@@ -78,14 +86,14 @@ d3.csv("tweets.csv", function(error, data) {
        // .filter(function(d) { if (d.text.indexOf("fake news") !== -1) {return d}  })
         .enter().append("circle")
         .attr("r", function(d) {
-            return r(d.favorite_count); })
+            return r(calculateRadius(d.total_social)); })
         .attr("cx", function(d) {
             return x(d.created_at); })
         .attr("cy", function(d) {
-            return y(d.retweet_count); })
+            return y(d.total_social); })
         .attr("class", "bubble")
         .style("fill", function(d) {
-            return color(d.favorite_count); })
+            return color(d.total_social); })
         .on("mouseover", function(d) {
             tooltip.transition()
                 .duration(200)
