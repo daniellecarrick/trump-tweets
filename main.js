@@ -46,7 +46,7 @@ var calculateRadius = function(area) {
 // Get the data
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
-
+   // var filter = "fake news";
     // format the data
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
@@ -54,24 +54,36 @@ d3.csv("tweets.csv", function(error, data) {
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
         console.log(d.total_social);
+        if (d.text.indexOf(filter) !== -1) {
+        console.log(d.text);
+    }
+
     });
+
+    var filter = function() {
+        for(d of data) {
+            if (d.text.indexOf("fake news") !== -1) {
+                 console.log(d.text)
+            }
+        }
+    }
+
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
     y.domain([0, d3.max(data, function(d) { return d.total_social; })]);
-   // y.domain([0, 100000]);
 /*    r.domain(d3.extent(data, function(d) {
         return calculateRadius(d.favorite_count + d.retweet_count); }));*/
     r.domain([50,1000]);
-
     color.domain([d3.max(data, function(d) {
         return d.total_social; }), d3.min(data, function(d) {
         return d.total_social; })]);
 
     // Add the scatterplot
-    container.selectAll("dot")
+   container.selectAll("dot")
         .data(data)
+       // .filter(function(d) { if (d.text.indexOf("fake news") !== -1) {return d}  })
         .enter().append("circle")
         .attr("r", function(d) {
             return r(calculateRadius(d.total_social)); })
@@ -79,6 +91,7 @@ d3.csv("tweets.csv", function(error, data) {
             return x(d.created_at); })
         .attr("cy", function(d) {
             return y(d.total_social); })
+        .attr("class", "bubble")
         .style("fill", function(d) {
             return color(d.total_social); })
         .on("mouseover", function(d) {
@@ -132,7 +145,7 @@ var gY = svg.append("g")
 svg.call(zoom);
 
 function zoomed() {
-    container.attr("transform", d3.event.transform);
-    gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+    //d3.selectAll('.bubble').attr("transform", d3.event.transform);
+   // gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
     gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
 }
