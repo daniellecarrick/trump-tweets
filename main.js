@@ -30,8 +30,9 @@ var container = svg.append("g");
 
 var zoom = d3.zoom()
     .scaleExtent([1, 40])
+    .y(y)
     //.translateExtent([[-100, -100], [width + 90, height + 100]])
-    .on("zoom", zoomed);
+    .on("zoom", zoom);
 
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -53,9 +54,9 @@ d3.csv("tweets.csv", function(error, data) {
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
-        console.log(d.total_social);
+      //  console.log(d.total_social);
         if (d.text.indexOf(filter) !== -1) {
-        console.log(d.text);
+       // console.log(d.text);
     }
 
     });
@@ -81,7 +82,7 @@ d3.csv("tweets.csv", function(error, data) {
         return d.total_social; })]);
 
     // Add the scatterplot
-   container.selectAll("dot")
+   container.selectAll(".dot")
         .data(data)
        // .filter(function(d) { if (d.text.indexOf("fake news") !== -1) {return d}  })
         .enter().append("circle")
@@ -144,8 +145,15 @@ var gY = svg.append("g")
 
 svg.call(zoom);
 
-function zoomed() {
+function zoom() {
     //d3.selectAll('.bubble').attr("transform", d3.event.transform);
    // gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
-    gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+    //gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+    gY.call(yAxis);
+    svg.selectAll('.bubble')
+        .attr("cx", function(d) {
+            return x(d.created_at); })
+        .attr("cy", function(d) {
+            return y(d.total_social); })
+    console.log('zoom button clicked');
 }
