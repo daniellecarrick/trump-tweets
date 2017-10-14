@@ -12,7 +12,7 @@ var formatDate = d3.timeFormat("%B %d, %Y");
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
-var r = d3.scaleLinear().range([5, 100]);
+var r = d3.scaleLinear().range([5, 50]);
 var color = d3.scaleSequential(d3.interpolateMagma);
 
 
@@ -40,7 +40,7 @@ var tooltip = d3.select("body").append("div")
 var calculateRadius = function(area) {
     var result = Math.sqrt(area/Math.PI);
     //console.log(result);
-    return result;  
+    return result;
 }
 
 // Get the data
@@ -73,9 +73,9 @@ d3.csv("tweets.csv", function(error, data) {
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
     y.domain([0, d3.max(data, function(d) { return d.total_social; })]);
-/*    r.domain(d3.extent(data, function(d) {
-        return calculateRadius(d.favorite_count + d.retweet_count); }));*/
-    r.domain([50,1000]);
+    r.domain(d3.extent(data, function(d) {
+        return calculateRadius(d.favorite_count + d.retweet_count); }));
+    //r.range([50,1000]);
     color.domain([d3.max(data, function(d) {
         return d.total_social; }), d3.min(data, function(d) {
         return d.total_social; })]);
