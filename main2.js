@@ -58,6 +58,7 @@ var parseTime = d3.timeParse("%a %b %d %H:%M:%S %Z %Y");
 
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%B %d, %Y");
+var filteredData = [];
 
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
@@ -88,7 +89,8 @@ d3.csv("tweets.csv", function(error, data) {
         return d.total_social; }), d3.min(data, function(d) {
         return d.total_social; })]);
 
-    var dot = scatter.selectAll(".dot")
+    function drawChart(data) {
+      var dot = scatter.selectAll(".dot")
         .data(data)
         .enter().append("circle")
         .attr("class", "dot")
@@ -112,6 +114,24 @@ d3.csv("tweets.csv", function(error, data) {
                 .duration(500)
                 .style("opacity", 0);
         });
+    }
+
+    drawChart(data);
+/// WORK ON THIS AREA
+        function filter(data, filterText) {
+          data.forEach(function(d) {
+            if (d.text.indexOf(filterText) !== -1) {
+              filteredData.push(d);
+               }
+          })
+          drawChart(filteredData);
+          console.log('filter was clicked');
+        };
+
+        d3.select('#fakenews').on('click', function() {
+          filter(data, "fake");
+        })
+
 
 }); // end of d3.csv
 
