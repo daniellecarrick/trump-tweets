@@ -30,7 +30,6 @@ var container = svg.append("g");
 
 var zoom = d3.zoom()
     .scaleExtent([1, 40])
-    .y(y)
     //.translateExtent([[-100, -100], [width + 90, height + 100]])
     .on("zoom", zoom);
 
@@ -65,10 +64,15 @@ d3.csv("tweets.csv", function(error, data) {
         for(d of data) {
             if (d.text.indexOf("fake news") !== -1) {
                  console.log(d.text)
+
             }
         }
     }
 
+    $('#fakenews').click(function(){
+        filter();
+        console.log('clicked');
+    })
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
@@ -109,23 +113,23 @@ d3.csv("tweets.csv", function(error, data) {
                 .style("opacity", 0);
         });
 
-    /*  // Add the X Axis
+      // Add the X Axis
       container.append("g")
           .attr("transform", "translate(0," + height + ")")
           .call(d3.axisBottom(x));
 
       // Add the Y Axis
       container.append("g")
-          .call(d3.axisLeft(y));*/
+          .call(d3.axisLeft(y));
 
 });
 
 var xAxis = d3.axisBottom(x);
 
-var yAxis = d3.axisLeft(y);
-/*    .ticks(10)
-    .tickSize(width)
-    .tickPadding(8 - width);*/
+var yAxis = d3.axisLeft(y)
+    .ticks(10)
+    .tickSize(-width)
+    .tickPadding(width);
 
 /*var view = svg.append("rect")
     .attr("class", "view")
@@ -146,11 +150,11 @@ var gY = svg.append("g")
 svg.call(zoom);
 
 function zoom() {
-    //d3.selectAll('.bubble').attr("transform", d3.event.transform);
-   // gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
-    //gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+    //d3.selectAll('.bubble').attr("transform", d3.event.transform.applyY(y));
+    gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+    gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
     gY.call(yAxis);
-    svg.selectAll('.bubble')
+    container.selectAll('circle')
         .attr("cx", function(d) {
             return x(d.created_at); })
         .attr("cy", function(d) {
