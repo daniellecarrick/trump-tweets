@@ -18,6 +18,8 @@ var y = d3.scaleLinear()
 var r = d3.scaleLinear()
     .range([5, 50]);
 
+var color = d3.scaleSequential(d3.interpolateMagma);
+
 var xAxis = d3.axisBottom(x).ticks(12),
     yAxis = d3.axisLeft(y).ticks(12 * height / width);
 
@@ -60,19 +62,31 @@ var formatDate = d3.timeFormat("%B %d, %Y");
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
 
+   // var regressionX = [];
+   // var regressionY = [];
+
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
 
+     //   regressionX.push(d.retweet_count);
+     //   regressionY.push(d.favorite_count);
     });
+
+    // See if a tweet is above or below expected
+     // findLineByLeastSquares(regressionX, regressionY);
+
 
     var xExtent = d3.extent(data, function(d) { return d.created_at; });
     var yExtent = d3.extent(data, function(d) { return d.total_social; });
     x.domain(d3.extent(data, function(d) { return d.created_at; }));
     y.domain(d3.extent(data, function(d) { return d.total_social; })).nice();
     r.domain(d3.extent(data, function(d) { return calculateRadius(d.total_social); }));
+    color.domain([d3.max(data, function(d) {
+        return d.total_social; }), d3.min(data, function(d) {
+        return d.total_social; })]);
 
     var dot = scatter.selectAll(".dot")
         .data(data)
@@ -82,7 +96,8 @@ d3.csv("tweets.csv", function(error, data) {
         .attr("cx", function(d) { return x(d.created_at); })
         .attr("cy", function(d) { return y(d.total_social); })
         .attr("opacity", 0.5)
-        .style("fill", "#4292c6");
+        .style("fill", function(d) {
+            return color(d.total_social); });
 
       dot.on("mouseover", function(d) {
             tooltip.transition()
