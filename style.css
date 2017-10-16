@@ -62,13 +62,13 @@ h1 {
 }
 
 .tweet-text {
-    margin: 10px 0px; 
+    margin: 10px 0px;
     display: block;
 }
 
 
 /* AXIS */
-
+/*
 .axis path {
     display: none;
 }
@@ -77,3 +77,4 @@ h1 {
     stroke-opacity: 0.3;
     shape-rendering: crispEdges;
 }
+*/

@@ -12,7 +12,7 @@ var formatDate = d3.timeFormat("%B %d, %Y");
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
-var r = d3.scaleLinear().range([5, 100]);
+var r = d3.scaleLinear().range([5, 50]);
 var color = d3.scaleSequential(d3.interpolateMagma);
 
 
@@ -31,7 +31,7 @@ var container = svg.append("g");
 var zoom = d3.zoom()
     .scaleExtent([1, 40])
     //.translateExtent([[-100, -100], [width + 90, height + 100]])
-    .on("zoom", zoomed);
+    .on("zoom", zoom);
 
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -40,7 +40,7 @@ var tooltip = d3.select("body").append("div")
 var calculateRadius = function(area) {
     var result = Math.sqrt(area/Math.PI);
     //console.log(result);
-    return result;  
+    return result;
 }
 
 // Get the data
@@ -53,9 +53,9 @@ d3.csv("tweets.csv", function(error, data) {
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
-        console.log(d.total_social);
+      //  console.log(d.total_social);
         if (d.text.indexOf(filter) !== -1) {
-        console.log(d.text);
+       // console.log(d.text);
     }
 
     });
@@ -64,24 +64,29 @@ d3.csv("tweets.csv", function(error, data) {
         for(d of data) {
             if (d.text.indexOf("fake news") !== -1) {
                  console.log(d.text)
+
             }
         }
     }
 
+    $('#fakenews').click(function(){
+        filter();
+        console.log('clicked');
+    })
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) {
         return d.created_at; }));
     y.domain([0, d3.max(data, function(d) { return d.total_social; })]);
-/*    r.domain(d3.extent(data, function(d) {
-        return calculateRadius(d.favorite_count + d.retweet_count); }));*/
-    r.domain([50,1000]);
+    r.domain(d3.extent(data, function(d) {
+        return calculateRadius(d.favorite_count + d.retweet_count); }));
+    //r.range([50,1000]);
     color.domain([d3.max(data, function(d) {
         return d.total_social; }), d3.min(data, function(d) {
         return d.total_social; })]);
 
     // Add the scatterplot
-   container.selectAll("dot")
+   container.selectAll(".dot")
         .data(data)
        // .filter(function(d) { if (d.text.indexOf("fake news") !== -1) {return d}  })
         .enter().append("circle")
@@ -108,23 +113,23 @@ d3.csv("tweets.csv", function(error, data) {
                 .style("opacity", 0);
         });
 
-    /*  // Add the X Axis
+      // Add the X Axis
       container.append("g")
           .attr("transform", "translate(0," + height + ")")
           .call(d3.axisBottom(x));
 
       // Add the Y Axis
       container.append("g")
-          .call(d3.axisLeft(y));*/
+          .call(d3.axisLeft(y));
 
 });
 
 var xAxis = d3.axisBottom(x);
 
-var yAxis = d3.axisLeft(y);
-/*    .ticks(10)
-    .tickSize(width)
-    .tickPadding(8 - width);*/
+var yAxis = d3.axisLeft(y)
+    .ticks(10)
+    .tickSize(-width)
+    .tickPadding(width);
 
 /*var view = svg.append("rect")
     .attr("class", "view")
@@ -144,8 +149,15 @@ var gY = svg.append("g")
 
 svg.call(zoom);
 
-function zoomed() {
-    //d3.selectAll('.bubble').attr("transform", d3.event.transform);
-   // gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+function zoom() {
+    //d3.selectAll('.bubble').attr("transform", d3.event.transform.applyY(y));
+    gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
     gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+    gY.call(yAxis);
+    container.selectAll('circle')
+        .attr("cx", function(d) {
+            return x(d.created_at); })
+        .attr("cy", function(d) {
+            return y(d.total_social); })
+    console.log('zoom button clicked');
 }
