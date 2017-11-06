@@ -54,7 +54,7 @@ var scatter = svg.append("g")
     .attr("clip-path", "url(#clip)");
 
 // parse the given data into something the computer understands
-var parseTime = d3.timeParse("%a %b %d %H:%M:%S %Z %Y");
+var parseTime = d3.timeParse("%m/%_d/%y %I:%M");
 
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%B %d, %Y");
@@ -63,27 +63,18 @@ var filteredData = [];
 d3.csv("tweets.csv", function(error, data) {
     if (error) throw error;
 
-   // var regressionX = [];
-   // var regressionY = [];
-
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
-
-     //   regressionX.push(d.retweet_count);
-     //   regressionY.push(d.favorite_count);
     });
-
-    // See if a tweet is above or below expected
-     // findLineByLeastSquares(regressionX, regressionY);
 
 
     var xExtent = d3.extent(data, function(d) { return d.created_at; });
     var yExtent = d3.extent(data, function(d) { return d.total_social; });
     x.domain(d3.extent(data, function(d) { return d.created_at; }));
-    y.domain(d3.extent(data, function(d) { return d.total_social; })).nice();
+    y.domain(d3.extent(data, function(d) { return (d.total_social*1.1); })).nice();
     r.domain(d3.extent(data, function(d) { return calculateRadius(d.total_social); }));
     color.domain([d3.max(data, function(d) {
         return d.total_social; }), d3.min(data, function(d) {
@@ -99,9 +90,9 @@ d3.csv("tweets.csv", function(error, data) {
         .attr("cy", function(d) { return y(d.total_social); })
         .attr("opacity", 0.5)
         .style("fill", function(d) {
-            return color(d.total_social); });
+            return color(d.total_social); })
 
-      dot.on("mouseover", function(d) {
+      .on("mouseover", function(d) {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
