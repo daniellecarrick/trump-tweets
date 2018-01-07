@@ -1,5 +1,5 @@
 // set the dimensions and margins of the graph
-var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+var margin = { top: 20, right: 20, bottom: 30, left: 70 },
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom -100;
 
@@ -20,7 +20,9 @@ var color = d3.scaleSequential(d3.interpolateMagma);
 // appends a 'group' element to 'svg'
 // moves the 'group' element to the top left margin
 var svg = d3.select("#scatterplot").append("svg")
-    .attr("width", width + margin.left + margin.right)
+    //.attr("width", width + margin.left + margin.right)
+        .attr("width", width )
+
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform",
