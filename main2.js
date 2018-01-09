@@ -1,6 +1,18 @@
-var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+var margin = { top: 20, right: 10, bottom: 30, left: 30 };
 width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom - 200;
+
+if (window.innerWidth < 500) {
+    var styles = {
+    numberofTticks: 5,
+    }
+} else {
+    var styles = {
+    numberofTticks: 15,
+    }
+}
+
+
 
 var x = d3.scaleTime()
     .range([0, width]);
@@ -19,13 +31,15 @@ var parseTime = d3.timeParse("%_m/%_d/%y %H:%M");
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%b %d");
 
+var formatEngagment = d3.format('.2s');
+
 var xAxis = d3.axisBottom(x)
-    .ticks(12)
+    .ticks(styles.numberofTticks)
     .tickFormat(formatDate);
 
 var yAxis = d3.axisRight(y)
     .tickSize(width)
-    .tickFormat(d3.format('.0s'));
+    .tickFormat(d3.format('.2s'));
 // .ticks(12 * height / width);
 
 var brush = d3.brush().extent([
@@ -58,14 +72,12 @@ var scatter = svg.append("g")
     .attr("id", "scatterplot")
     .attr("clip-path", "url(#clip)");
 
-var filteredData = [];
-
 /*** TOOLTIP ***/
 
 tip = d3.tip()
     .html(function(d) {
         /*return d.text, d.retweet_count, d.favorite_count;*/
-        return d.text + '<br />' + formatDate(d.created_at);
+        return '<span class="tip-text">' + d.text + '</span><br /><span class="tip-details">' + formatDate(d.created_at) + ' | ' + formatEngagment(d.total_social) + ' engagements';
     })
     .attr('class', 'd3-tip')
     .direction(function(d) {
@@ -99,7 +111,7 @@ d3.csv("tweets.csv", function(error, data) {
 
     var xExtent = d3.extent(data, function(d) { return d.created_at; });
     var yExtent = d3.extent(data, function(d) { return d.total_social; });
-    x.domain([new Date('2016', '11', '20'), new Date('2018', '01', '20')]);
+    x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
     y.domain(yExtent).nice();
     r.domain(d3.extent(data, function(d) { return calculateRadius(d.total_social); }));
     color.domain([d3.max(data, function(d) {
@@ -153,6 +165,10 @@ d3.csv("tweets.csv", function(error, data) {
             })
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
+    }
+
+    function reset() {
+        y.domain(yExtent).nice();
     }
     var filter = ' ';
     drawChart(data, filter);
@@ -214,7 +230,13 @@ function zoom() {
         .attr("cy", function(d) { return y(d.total_social); });
 }
 
-d3.select('button').on('click', function() {
+d3.select('#reset').on('click', function() {
+    console.log('reset clicked');
+    x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
+       // y.domain([s[1][1], s[0][1]].map(y.invert, y));
+})
+
+d3.select('button.filter').on('click', function() {
     filter = this.value;
     console.log('filter is', filter);
     drawChart(data, filter);
