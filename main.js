@@ -240,4 +240,4 @@ d3.select('button.filter').on('click', function() {
     filter = this.value;
     console.log('filter is', filter);
     drawChart(data, filter);
-})
+});
