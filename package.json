@@ -1,0 +1,23 @@
+{
+  "name": "trump-tweets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniellecarrick/trump-tweets.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daniellecarrick/trump-tweets/issues"
+  },
+  "homepage": "https://github.com/daniellecarrick/trump-tweets#readme",
+  "dependencies": {
+    "d3": "^4.11.0",
+    "d3-zoom": "^1.7.1"
+  }
+}
