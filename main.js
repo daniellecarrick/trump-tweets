@@ -26,7 +26,10 @@ var r = d3.scaleLinear()
 var color = d3.scaleSequential(d3.interpolateMagma);
 
 // parse the given data into something the computer understands
-var parseTime = d3.timeParse("%_m/%_d/%y %H:%M");
+//var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
+
+var parseTime = d3.timeParse("%_m/%_d/%_y %H:%M");
+
 
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%b %d");
@@ -106,6 +109,10 @@ d3.csv("tweets.csv", function(error, data) {
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
+       /* if(d.is_retweet === 'TRUE') {
+            data.splice(data.indexOf(d),1);
+           // causing errors on elements before/after
+        }*/
     });
 
     var xExtent = d3.extent(data, function(d) { return d.created_at; });
@@ -187,7 +194,7 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { return y(d.total_social); })
+            .attr("cy", function(d) { if(isNaN(d.total_social)) { console.log(d)} else {return y(d.total_social); }})
             .attr("opacity", 0.5)
             .style("fill", function(d) {
                 return color(d.total_social)
