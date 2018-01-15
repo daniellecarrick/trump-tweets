@@ -146,8 +146,10 @@ d3.csv("tweets.csv", function(error, data) {
 
     var keywords = {
         "fakenews": ['fake news', 'Fake News', '#fakenews'],
-        "clinton": ['Crooked', 'Hilary', 'Hillary', 'Clinton'],
-        "all": [' ']
+        "clinton": ['Hilary', 'Hillary', 'Clinton'],
+        "all": [' '],
+        "obama": ['obama', "Obama"],
+        "media": ['fox', 'Fox', 'FOX', 'CNN', 'NBC', 'cnn', 'nbc', 'New York Times', 'NY Times', 'new york times']
     }
 
     d3.select('.button-group').selectAll('button.filter').on('click', function() {
