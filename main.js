@@ -76,7 +76,6 @@ var scatter = svg.append("g")
 
 tip = d3.tip()
     .html(function(d) {
-        /*return d.text, d.retweet_count, d.favorite_count;*/
         return '<span class="tip-text">' + d.text + '</span><br /><span class="tip-details">' + formatDate(d.created_at) + ' | ' + formatEngagment(d.total_social) + ' engagements';
     })
     .attr('class', 'd3-tip')
@@ -147,22 +146,18 @@ d3.csv("tweets.csv", function(error, data) {
 
     var keywords = {
         "fakenews": ['fake news', 'Fake News', '#fakenews'],
-        "clinton": ['Crooked', 'Hilary', 'Hillary', 'Clinton']
+        "clinton": ['Crooked', 'Hilary', 'Hillary', 'Clinton'],
+        "all": [' ']
     }
 
     d3.select('.button-group').selectAll('button.filter').on('click', function() {
         var selectedFilter = this.value;
-        console.log('filter is', selectedFilter);
         var filter = keywords[selectedFilter];
-        console.log('filter keywords', filter);
-        var filteredData = data.filter(tweet => filtering(tweet.text, filter));
-
-       console.log('filtered data is ', filteredData);
+        var filteredData = data.filter(tweet => filterText(tweet.text, filter));
         updateChart(filteredData);
     });
 
-    /// WORK ON THIS AREA
-    function filtering(str, items) {
+    function filterText(str, items) {
         for (var i in items) {
             var item = items[i];
             if (str.indexOf(item) > -1) {
@@ -174,15 +169,23 @@ d3.csv("tweets.csv", function(error, data) {
 
     function updateChart(data) {
 
+        // need to repeat styles for filters to work..
         var dot = scatter.selectAll(".dot")
             .data(data)
-            .enter().append("circle")
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
-            // .attr("r", 2)
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); })
-            //    .attr("cy", function(d) { return y(d.favorite_count); })
+            .attr("opacity", 0.5)
+            .style("fill", function(d) {
+                return color(d.total_social)
+            })
+
+        dot.enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
+            .attr("cx", function(d) { return x(d.created_at); })
+            .attr("cy", function(d) { return y(d.total_social); })
             .attr("opacity", 0.5)
             .style("fill", function(d) {
                 return color(d.total_social)
@@ -197,16 +200,26 @@ d3.csv("tweets.csv", function(error, data) {
 
     d3.select('#reset').on('click', reset);
 
-    function reset() {
-        var t = scatter.transition().duration(750);
-        x.domain(xExtent).nice();
-        y.domain(yExtent).nice();
-        svg.select("#axis--x").transition(t).call(xAxis);
-        svg.select("#axis--y").transition(t).call(customYAxis);
-        scatter.selectAll("circle").transition(t)
-            .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { return y(d.total_social); });
-    }
+    d3.select('button#top').on('click', function(d) {
+        var maxTweets = 100;
+            var sortedData = data.sort(function compareNumbers(a, b) {
+                return b.total_social - a.total_social;
+            })
+            var topTweets = sortedData.slice(0, maxTweets);
+           // console.log(filteredData);
+            updateChart(topTweets);
+    });
+
+function reset() {
+    var t = scatter.transition().duration(750);
+    x.domain(xExtent).nice();
+    y.domain(yExtent).nice();
+    svg.select("#axis--x").transition(t).call(xAxis);
+    svg.select("#axis--y").transition(t).call(customYAxis);
+    scatter.selectAll("circle").transition(t)
+        .attr("cx", function(d) { return x(d.created_at); })
+        .attr("cy", function(d) { return y(d.total_social); });
+}
 
 
 }); // end of d3.csv
