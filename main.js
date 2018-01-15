@@ -12,8 +12,6 @@ if (window.innerWidth < 500) {
     }
 }
 
-
-
 var x = d3.scaleTime()
     .range([0, width]);
 
@@ -27,9 +25,7 @@ var color = d3.scaleSequential(d3.interpolateMagma);
 
 // parse the given data into something the computer understands
 //var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
-
 var parseTime = d3.timeParse("%_m/%_d/%_y %H:%M");
-
 
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%b %d");
