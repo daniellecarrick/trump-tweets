@@ -38,8 +38,13 @@ var xAxis = d3.axisBottom(x)
 
 var yAxis = d3.axisRight(y)
     .tickSize(width)
-    .tickFormat(d3.format('.2s'));
-// .ticks(12 * height / width);
+    .tickFormat(function(d) {
+      var s = formatEngagment(d);
+      return this.parentNode.nextSibling
+          ? s
+          : s + " retweets and favorites";
+    });
+
 
 var brush = d3.brush().extent([
         [0, 0],
@@ -101,7 +106,6 @@ d3.csv("tweets.csv", function(error, data) {
 
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
-        //console.log(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
@@ -138,14 +142,6 @@ d3.csv("tweets.csv", function(error, data) {
     // y axis
     svg.append("g")
         .call(customYAxis);
-
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -20)
-        .attr("dy", "1em")
-        .attr('class', 'axis-label')
-        .style("text-anchor", "end")
-        .text("Retweets and Favorites");
 
     var keywords = {
         "fakenews": ['fake news', 'Fake News', '#fakenews'],
@@ -259,7 +255,7 @@ function customYAxis(g) {
     g.call(yAxis);
     g.select(".domain").remove();
     g.selectAll(".tick line").attr("stroke", "#999").attr("stroke-dasharray", "2,2");
-    g.selectAll(".tick text").attr("x", 4).attr("dy", -4);
+    g.selectAll(".tick text").attr("x", 0).attr("dy", -4);
 }
 
 function zoom() {
