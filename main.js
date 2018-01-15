@@ -189,6 +189,10 @@ d3.csv("tweets.csv", function(error, data) {
         return false;
     }
 
+
+}); // end of d3.csv
+
+
     d3.select('#reset').on('click', function() {
         console.log('reset clicked');
         var t = scatter.transition().duration(750);
@@ -198,10 +202,6 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); });
     })
-
-}); // end of d3.csv
-
-
 scatter.append("g")
     .attr("class", "brush")
     .call(brush);
