@@ -4,11 +4,11 @@ width = window.innerWidth - margin.left - margin.right,
 
 if (window.innerWidth < 500) {
     var styles = {
-    numberofTticks: 5,
+        numberofTticks: 5,
     }
 } else {
     var styles = {
-    numberofTticks: 15,
+        numberofTticks: 15,
     }
 }
 
@@ -145,13 +145,17 @@ d3.csv("tweets.csv", function(error, data) {
         .style("text-anchor", "end")
         .text("Retweets and Favorites");
 
+    var keywords = {
+        "fakenews": ['fake news', 'Fake News', '#fakenews'],
+        "clinton": ['Crooked', 'Hilary', 'Hillary', 'Clinton']
+    }
 
     function drawChart(data, filter) {
         console.log('filter is', filter);
 
         var dot = scatter.selectAll(".dot")
-            .data(data)
-            .enter().append("circle") //.filter(function(d) { if (filtering(d.text, filter)) {return d.text}})
+            .data(data.filter(function(d) { if (filtering(d.text, keywords['clinton'])) { return d.text } }))
+            .enter().append("circle")
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             // .attr("r", 2)
@@ -173,6 +177,7 @@ d3.csv("tweets.csv", function(error, data) {
     var filter = ' ';
     drawChart(data, filter);
 
+
     /// WORK ON THIS AREA
     function filtering(str, items) {
         for (var i in items) {
@@ -183,6 +188,16 @@ d3.csv("tweets.csv", function(error, data) {
         }
         return false;
     }
+
+    d3.select('#reset').on('click', function() {
+        console.log('reset clicked');
+        var t = scatter.transition().duration(750);
+        x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
+        svg.select('.x.axis').transition().call(xAxis);
+        scatter.selectAll("circle").transition(t)
+            .attr("cx", function(d) { return x(d.created_at); })
+            .attr("cy", function(d) { return y(d.total_social); });
+    })
 
 }); // end of d3.csv
 
@@ -230,11 +245,6 @@ function zoom() {
         .attr("cy", function(d) { return y(d.total_social); });
 }
 
-d3.select('#reset').on('click', function() {
-    console.log('reset clicked');
-    x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
-       // y.domain([s[1][1], s[0][1]].map(y.invert, y));
-})
 
 d3.select('button.filter').on('click', function() {
     filter = this.value;
