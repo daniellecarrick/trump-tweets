@@ -150,11 +150,29 @@ d3.csv("tweets.csv", function(error, data) {
         "clinton": ['Crooked', 'Hilary', 'Hillary', 'Clinton']
     }
 
-    function drawChart(data, filter) {
+    d3.select('.button-group').selectAll('button.filter').on('click', function() {
+        filter = this.value;
+        console.log('filter is', filter);
+        filter = keywords[filter];
+        updateChart(data, filter);
+    });
+
+    /// WORK ON THIS AREA
+    function filtering(str, items) {
+        for (var i in items) {
+            var item = items[i];
+            if (str.indexOf(item) > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function updateChart(data, filter) {
         console.log('filter is', filter);
 
         var dot = scatter.selectAll(".dot")
-            .data(data.filter(function(d) { if (filtering(d.text, keywords['clinton'])) { return d.text } }))
+            .data(data)
             .enter().append("circle")
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
@@ -169,39 +187,38 @@ d3.csv("tweets.csv", function(error, data) {
             })
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
+
+        dot.exit().remove();
     }
 
     function reset() {
         y.domain(yExtent).nice();
     }
     var filter = ' ';
-    drawChart(data, filter);
 
 
-    /// WORK ON THIS AREA
-    function filtering(str, items) {
-        for (var i in items) {
-            var item = items[i];
-            if (str.indexOf(item) > -1) {
-                return true;
-            }
-        }
-        return false;
-    }
+    updateChart(data);
+
+    d3.select('#reset').on('click', function() {
+        console.log('reset clicked');
+        var t = scatter.transition().duration(750);
+        x.domain(xExtent).nice();
+        y.domain(yExtent).nice();
+
+        svg.select("#axis--x").transition(t).call(xAxis);
+        svg.select("#axis--y").transition(t).call(customYAxis);
+
+        scatter.selectAll("circle").transition(t)
+            .attr("cx", function(d) { return x(d.created_at); })
+            .attr("cy", function(d) { return y(d.total_social); });
+    })
 
 
 }); // end of d3.csv
 
 
-    d3.select('#reset').on('click', function() {
-        console.log('reset clicked');
-        var t = scatter.transition().duration(750);
-        x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
-        svg.select('.x.axis').transition().call(xAxis);
-        scatter.selectAll("circle").transition(t)
-            .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { return y(d.total_social); });
-    })
+
+
 scatter.append("g")
     .attr("class", "brush")
     .call(brush);
@@ -244,10 +261,3 @@ function zoom() {
         .attr("cx", function(d) { return x(d.created_at); })
         .attr("cy", function(d) { return y(d.total_social); });
 }
-
-
-d3.select('button.filter').on('click', function() {
-    filter = this.value;
-    console.log('filter is', filter);
-    drawChart(data, filter);
-});
