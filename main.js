@@ -21,7 +21,7 @@ var y = d3.scaleLinear()
     .range([height, 0]);
 
 var r = d3.scaleLinear()
-    .range([3, 30]);
+    .range([2, 15]);
 
 var color = d3.scaleSequential(d3.interpolateMagma);
 
@@ -151,10 +151,14 @@ d3.csv("tweets.csv", function(error, data) {
     }
 
     d3.select('.button-group').selectAll('button.filter').on('click', function() {
-        filter = this.value;
-        console.log('filter is', filter);
-        filter = keywords[filter];
-        updateChart(data, filter);
+        var selectedFilter = this.value;
+        console.log('filter is', selectedFilter);
+        var filter = keywords[selectedFilter];
+        console.log('filter keywords', filter);
+        var filteredData = data.filter(tweet => filtering(tweet.text, filter));
+
+       console.log('filtered data is ', filteredData);
+        updateChart(filteredData);
     });
 
     /// WORK ON THIS AREA
@@ -168,8 +172,7 @@ d3.csv("tweets.csv", function(error, data) {
         return false;
     }
 
-    function updateChart(data, filter) {
-        console.log('filter is', filter);
+    function updateChart(data) {
 
         var dot = scatter.selectAll(".dot")
             .data(data)
@@ -177,7 +180,6 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             // .attr("r", 2)
-
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); })
             //    .attr("cy", function(d) { return y(d.favorite_count); })
@@ -191,33 +193,23 @@ d3.csv("tweets.csv", function(error, data) {
         dot.exit().remove();
     }
 
-    function reset() {
-        y.domain(yExtent).nice();
-    }
-    var filter = ' ';
-
-
     updateChart(data);
 
-    d3.select('#reset').on('click', function() {
-        console.log('reset clicked');
+    d3.select('#reset').on('click', reset);
+
+    function reset() {
         var t = scatter.transition().duration(750);
         x.domain(xExtent).nice();
         y.domain(yExtent).nice();
-
         svg.select("#axis--x").transition(t).call(xAxis);
         svg.select("#axis--y").transition(t).call(customYAxis);
-
         scatter.selectAll("circle").transition(t)
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); });
-    })
+    }
 
 
 }); // end of d3.csv
-
-
-
 
 scatter.append("g")
     .attr("class", "brush")
