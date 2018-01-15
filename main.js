@@ -4,15 +4,13 @@ width = window.innerWidth - margin.left - margin.right,
 
 if (window.innerWidth < 500) {
     var styles = {
-    numberofTticks: 5,
+        numberofTticks: 5,
     }
 } else {
     var styles = {
-    numberofTticks: 15,
+        numberofTticks: 15,
     }
 }
-
-
 
 var x = d3.scaleTime()
     .range([0, width]);
@@ -21,12 +19,13 @@ var y = d3.scaleLinear()
     .range([height, 0]);
 
 var r = d3.scaleLinear()
-    .range([3, 30]);
+    .range([2, 15]);
 
 var color = d3.scaleSequential(d3.interpolateMagma);
 
 // parse the given data into something the computer understands
-var parseTime = d3.timeParse("%_m/%_d/%y %H:%M");
+//var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
+var parseTime = d3.timeParse("%_m/%_d/%_y %H:%M");
 
 // Now format the date to something people can understand
 var formatDate = d3.timeFormat("%b %d");
@@ -76,7 +75,6 @@ var scatter = svg.append("g")
 
 tip = d3.tip()
     .html(function(d) {
-        /*return d.text, d.retweet_count, d.favorite_count;*/
         return '<span class="tip-text">' + d.text + '</span><br /><span class="tip-details">' + formatDate(d.created_at) + ' | ' + formatEngagment(d.total_social) + ' engagements';
     })
     .attr('class', 'd3-tip')
@@ -107,6 +105,10 @@ d3.csv("tweets.csv", function(error, data) {
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
+       /* if(d.is_retweet === 'TRUE') {
+            data.splice(data.indexOf(d),1);
+           // causing errors on elements before/after
+        }*/
     });
 
     var xExtent = d3.extent(data, function(d) { return d.created_at; });
@@ -145,36 +147,22 @@ d3.csv("tweets.csv", function(error, data) {
         .style("text-anchor", "end")
         .text("Retweets and Favorites");
 
-
-    function drawChart(data, filter) {
-        console.log('filter is', filter);
-
-        var dot = scatter.selectAll(".dot")
-            .data(data)
-            .enter().append("circle") //.filter(function(d) { if (filtering(d.text, filter)) {return d.text}})
-            .attr("class", "dot")
-            .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
-            // .attr("r", 2)
-
-            .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { return y(d.total_social); })
-            //    .attr("cy", function(d) { return y(d.favorite_count); })
-            .attr("opacity", 0.5)
-            .style("fill", function(d) {
-                return color(d.total_social)
-            })
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
+    var keywords = {
+        "fakenews": ['fake news', 'Fake News', '#fakenews'],
+        "clinton": ['Hilary', 'Hillary', 'Clinton'],
+        "all": [' '],
+        "obama": ['obama', "Obama"],
+        "media": ['fox', 'Fox', 'FOX', 'CNN', 'NBC', 'cnn', 'nbc', 'New York Times', 'NY Times', 'new york times']
     }
 
-    function reset() {
-        y.domain(yExtent).nice();
-    }
-    var filter = ' ';
-    drawChart(data, filter);
+    d3.select('.button-group').selectAll('button.filter').on('click', function() {
+        var selectedFilter = this.value;
+        var filter = keywords[selectedFilter];
+        var filteredData = data.filter(tweet => filterText(tweet.text, filter));
+        updateChart(filteredData);
+    });
 
-    /// WORK ON THIS AREA
-    function filtering(str, items) {
+    function filterText(str, items) {
         for (var i in items) {
             var item = items[i];
             if (str.indexOf(item) > -1) {
@@ -184,8 +172,62 @@ d3.csv("tweets.csv", function(error, data) {
         return false;
     }
 
-}); // end of d3.csv
+    function updateChart(data) {
 
+        // need to repeat styles for filters to work..
+        var dot = scatter.selectAll(".dot")
+            .data(data)
+            .attr("class", "dot")
+            .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
+            .attr("cx", function(d) { return x(d.created_at); })
+            .attr("cy", function(d) { return y(d.total_social); })
+            .attr("opacity", 0.5)
+            .style("fill", function(d) {
+                return color(d.total_social)
+            })
+
+        dot.enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
+            .attr("cx", function(d) { return x(d.created_at); })
+            .attr("cy", function(d) { if(isNaN(d.total_social)) { console.log(d)} else {return y(d.total_social); }})
+            .attr("opacity", 0.5)
+            .style("fill", function(d) {
+                return color(d.total_social)
+            })
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
+
+        dot.exit().remove();
+    }
+
+    updateChart(data);
+
+    d3.select('#reset').on('click', reset);
+
+    d3.select('button#top').on('click', function(d) {
+        var maxTweets = 100;
+            var sortedData = data.sort(function compareNumbers(a, b) {
+                return b.total_social - a.total_social;
+            })
+            var topTweets = sortedData.slice(0, maxTweets);
+           // console.log(filteredData);
+            updateChart(topTweets);
+    });
+
+function reset() {
+    var t = scatter.transition().duration(750);
+    x.domain(xExtent).nice();
+    y.domain(yExtent).nice();
+    svg.select("#axis--x").transition(t).call(xAxis);
+    svg.select("#axis--y").transition(t).call(customYAxis);
+    scatter.selectAll("circle").transition(t)
+        .attr("cx", function(d) { return x(d.created_at); })
+        .attr("cy", function(d) { return y(d.total_social); });
+}
+
+
+}); // end of d3.csv
 
 scatter.append("g")
     .attr("class", "brush")
@@ -229,15 +271,3 @@ function zoom() {
         .attr("cx", function(d) { return x(d.created_at); })
         .attr("cy", function(d) { return y(d.total_social); });
 }
-
-d3.select('#reset').on('click', function() {
-    console.log('reset clicked');
-    x.domain([new Date('2017', '00', '01'), new Date('2018', '01', '01')]);
-       // y.domain([s[1][1], s[0][1]].map(y.invert, y));
-})
-
-d3.select('button.filter').on('click', function() {
-    filter = this.value;
-    console.log('filter is', filter);
-    drawChart(data, filter);
-})
