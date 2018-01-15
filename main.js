@@ -21,7 +21,9 @@ var y = d3.scaleLinear()
 var r = d3.scaleLinear()
     .range([2, 15]);
 
-var color = d3.scaleSequential(d3.interpolateMagma);
+// light pink #fde1d7
+var color = d3.scaleLinear()
+    .range(['#e28b89', '#fde1d7']);
 
 // parse the given data into something the computer understands
 //var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
@@ -132,12 +134,6 @@ d3.csv("tweets.csv", function(error, data) {
         .attr('id', "axis--x")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
-
-    svg.append("text")
-        .style("text-anchor", "end")
-        .attr("x", width)
-        .attr("y", height - 8)
-        .text("Date");
 
     // y axis
     svg.append("g")
@@ -254,7 +250,7 @@ function customYAxis(g) {
     g.attr('id', "axis--y")
     g.call(yAxis);
     g.select(".domain").remove();
-    g.selectAll(".tick line").attr("stroke", "#999").attr("stroke-dasharray", "2,2");
+    g.selectAll(".tick line").attr("stroke", "#eee").attr("stroke-dasharray", "2,2");
     g.selectAll(".tick text").attr("x", 0).attr("dy", -4);
 }
 
