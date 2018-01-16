@@ -4,11 +4,15 @@ width = window.innerWidth - margin.left - margin.right,
 
 if (window.innerWidth < 500) {
     var styles = {
-        numberOfTicks: 5,
+        numberofTticks: 5,
+        radiusRange: [2, 4],
+        formatDate: d3.timeFormat("%b")
     }
 } else {
     var styles = {
-        numberOfTicks: 15,
+        numberofTticks: 15,
+        radiusRange: [3, 15],
+        formatDate: d3.timeFormat("%b %d")
     }
 }
 
