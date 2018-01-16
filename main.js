@@ -4,11 +4,11 @@ width = window.innerWidth - margin.left - margin.right,
 
 if (window.innerWidth < 500) {
     var styles = {
-        numberofTticks: 5,
+        numberOfTicks: 5,
     }
 } else {
     var styles = {
-        numberofTticks: 15,
+        numberOfTicks: 15,
     }
 }
 
@@ -21,7 +21,12 @@ var y = d3.scaleLinear()
 var r = d3.scaleLinear()
     .range([2, 15]);
 
-var color = d3.scaleSequential(d3.interpolateMagma);
+// light pink #fde1d7 dark pink #e28b89
+var color = d3.scaleLinear()
+    .range(['#d16c6a', '#fde1d7']);
+
+var opacity = d3.scaleLinear()
+    .range([0.5, 1])
 
 // parse the given data into something the computer understands
 //var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
@@ -33,13 +38,19 @@ var formatDate = d3.timeFormat("%b %d");
 var formatEngagment = d3.format('.2s');
 
 var xAxis = d3.axisBottom(x)
-    .ticks(styles.numberofTticks)
+    .ticks(styles.numberOfTicks)
+    .tickSize(3)
     .tickFormat(formatDate);
 
 var yAxis = d3.axisRight(y)
     .tickSize(width)
-    .tickFormat(d3.format('.2s'));
-// .ticks(12 * height / width);
+    .tickFormat(function(d) {
+      var s = formatEngagment(d);
+      return this.parentNode.nextSibling
+          ? s
+          : s + " retweets and favorites";
+    });
+
 
 var brush = d3.brush().extent([
         [0, 0],
@@ -83,6 +94,8 @@ tip = d3.tip()
             return 'e';
         } else if (d.created_at > 1513314000000) { // equivalent to Dec 15 2017
             return 'w';
+        } else if (d.total_social > 80000) {
+            return 's';
         } else {
             return 'n';
         }
@@ -101,7 +114,6 @@ d3.csv("tweets.csv", function(error, data) {
 
     data.forEach(function(d) {
         d.created_at = parseTime(d.created_at);
-        //console.log(d.created_at);
         d.retweet_count = +d.retweet_count;
         d.favorite_count = +d.favorite_count;
         d.total_social = +d.retweet_count + +d.favorite_count;
@@ -129,23 +141,9 @@ d3.csv("tweets.csv", function(error, data) {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
-    svg.append("text")
-        .style("text-anchor", "end")
-        .attr("x", width)
-        .attr("y", height - 8)
-        .text("Date");
-
     // y axis
     svg.append("g")
         .call(customYAxis);
-
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -20)
-        .attr("dy", "1em")
-        .attr('class', 'axis-label')
-        .style("text-anchor", "end")
-        .text("Retweets and Favorites");
 
     var keywords = {
         "fakenews": ['fake news', 'Fake News', '#fakenews'],
@@ -160,6 +158,9 @@ d3.csv("tweets.csv", function(error, data) {
         var filter = keywords[selectedFilter];
         var filteredData = data.filter(tweet => filterText(tweet.text, filter));
         updateChart(filteredData);
+
+        d3.selectAll('button.filter').classed('selected', false);
+        d3.select(this).classed('selected', !d3.select(this).classed('selected'));
     });
 
     function filterText(str, items) {
@@ -181,7 +182,7 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); })
-            .attr("opacity", 0.5)
+            .attr("opacity", 0.75)
             .style("fill", function(d) {
                 return color(d.total_social)
             })
@@ -190,8 +191,10 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { if(isNaN(d.total_social)) { console.log(d)} else {return y(d.total_social); }})
-            .attr("opacity", 0.5)
+            .attr("cy", function(d) { return y(d.total_social); })
+            .attr("opacity", function(d) {
+                return opacity(d.total_social)
+            })
             .style("fill", function(d) {
                 return color(d.total_social)
             })
@@ -258,8 +261,8 @@ function customYAxis(g) {
     g.attr('id', "axis--y")
     g.call(yAxis);
     g.select(".domain").remove();
-    g.selectAll(".tick line").attr("stroke", "#999").attr("stroke-dasharray", "2,2");
-    g.selectAll(".tick text").attr("x", 4).attr("dy", -4);
+    g.selectAll(".tick line").attr("stroke", "#eee").attr("stroke-dasharray", "2,2");
+    g.selectAll(".tick text").attr("x", 0).attr("dy", -4);
 }
 
 function zoom() {

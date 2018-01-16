@@ -1,6 +1,22 @@
+@font-face {
+    font-family: VogueDisplay;
+    src: url('https://www.teenvogue.com/fonts/VogueDisplay.woff');
+}
+
+@font-face {
+    font-family: VogueAvantGarde-Bold;
+    src: url('https://www.teenvogue.com/fonts/VogueAvantGarde-Bold.woff');
+}
+
+@font-face {
+    font-family: VogueAvantGarde-Light;
+    src: url('https://www.teenvogue.com/fonts/VogueAvantGarde-ExtraLight.woff');
+}
+
 body {
-/*  background-color: #484848;
-*/  font-family: 'Roboto';
+    /*  background-color: #484848;
+*/
+    font-family: 'VogueDisplay';
 }
 
 circle {
@@ -9,21 +25,57 @@ circle {
 }
 
 button {
-    padding: 10px;
-    background: #ccc;
+    padding: 5px 10px 3px 10px;
+    background: #626366;
     color: white;
     cursor: pointer;
     border: none;
+    font-family: 'VogueAvantGarde-Bold';
+    text-transform: uppercase;
 }
 
 button:focus {
     outline: 0;
 }
 
-h1 {
-  text-align: center;
-  font: Arial;
+button:hover {
+    background: #e28b89;
 }
+
+button#reset {
+    margin-left: 30px;
+}
+
+.button-group {
+    display: inline-block;
+}
+
+.top-bar {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.selected {
+    background: #e28b89;
+}
+
+p {
+    margin-bottom: 3px;
+    font-family: 'VogueAvantGarde-Light';
+    font-size: 11px;
+}
+
+h1 {
+    text-align: center;
+    font: Arial;
+}
+
+text {
+    fill: #626366;
+}
+
+
+
 /* TOOLTIPS */
 
 .d3-tip {
@@ -41,7 +93,11 @@ h1 {
     color: #aaa;
     display: inline-block;
     font-size: 10px;
+    font-family: 'VogueAvantGarde-Light';
 }
+
+
+
 /*
 .tooltip {
     line-height: 1;
@@ -69,15 +125,18 @@ h1 {
 }
 
 
+
+
 /* Style northward tooltips differently */
 
 .tooltip.n:after {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
-}*/
+}
 
-.date, .retweet-stats {
+*/ .date,
+.retweet-stats {
     font-weight: lighter;
     font-size: 12px;
 }
@@ -105,5 +164,4 @@ h1 {
     .d3-tip {
         font-size: 10px;
     }
-
 }
