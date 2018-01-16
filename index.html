@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <head>
     <title>Trump Tweets</title>
     <meta charset="utf-8">
@@ -11,18 +12,21 @@
 
 <body>
     <h1>A year of tweets from @realDonaldTrump</h1>
-    <div class='button-group'>
-    <button id="all" class="filter" type="button" value="all">All</button>
-    <button id="top" type="button" value="top">Top 100</button>
-    Filter tweets about:
-    <button id="fakenews" class="filter" type="button" value="fakenews">Fake news</button>
-    <button id="crookedhillary" class="filter" type="button" value="clinton">The Clintons</button>
-    <button id="media" class="filter" type="button" value="media">The Media</button>
-    <button id="obama" class="filter" type="button" value="obama">Obama</button>
-    <button id="reset">Reset Zoom</button>
-  </div>
+    <div class="top-bar">
+        <div class='button-group'>
+            <!--         <p>Filter tweets by</p>
+ -->
+            <button id="all" class="filter selected" type="button" value="all">All tweets</button>
+            <button id="fakenews" class="filter" type="button" value="fakenews">Fake news</button>
+            <button id="crookedhillary" class="filter" type="button" value="clinton">The Clintons</button>
+            <button id="media" class="filter" type="button" value="media">The Media</button>
+            <button id="obama" class="filter" type="button" value="obama">Obama</button>
+            <button id="top" type="button" value="top">Top 100</button>
+        </div>
+        <button id="reset">Reset Zoom</button>
+    </div>
     <div id="scatterplot"></div>
-   <!--  <p id="g1"></p> -->
+    <!--  <p id="g1"></p> -->
     <!-- SCRIPTS -->
     <!--  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script> -->
     <!-- load the d3.js library -->

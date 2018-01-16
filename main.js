@@ -4,11 +4,11 @@ width = window.innerWidth - margin.left - margin.right,
 
 if (window.innerWidth < 500) {
     var styles = {
-        numberofTticks: 5,
+        numberOfTicks: 5,
     }
 } else {
     var styles = {
-        numberofTticks: 15,
+        numberOfTicks: 15,
     }
 }
 
@@ -21,9 +21,9 @@ var y = d3.scaleLinear()
 var r = d3.scaleLinear()
     .range([2, 15]);
 
-// light pink #fde1d7
+// light pink #fde1d7 dark pink #e28b89
 var color = d3.scaleLinear()
-    .range(['#e28b89', '#fde1d7']);
+    .range(['#d16c6a', '#fde1d7']);
 
 // parse the given data into something the computer understands
 //var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
@@ -35,7 +35,7 @@ var formatDate = d3.timeFormat("%b %d");
 var formatEngagment = d3.format('.2s');
 
 var xAxis = d3.axisBottom(x)
-    .ticks(styles.numberofTticks)
+    .ticks(styles.numberOfTicks)
     .tickFormat(formatDate);
 
 var yAxis = d3.axisRight(y)
@@ -152,6 +152,9 @@ d3.csv("tweets.csv", function(error, data) {
         var filter = keywords[selectedFilter];
         var filteredData = data.filter(tweet => filterText(tweet.text, filter));
         updateChart(filteredData);
+
+        d3.selectAll('button.filter').classed('selected', false);
+        d3.select(this).classed('selected', !d3.select(this).classed('selected'));
     });
 
     function filterText(str, items) {
@@ -173,7 +176,7 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { return y(d.total_social); })
-            .attr("opacity", 0.5)
+            .attr("opacity", 0.75)
             .style("fill", function(d) {
                 return color(d.total_social)
             })
@@ -183,7 +186,7 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
             .attr("cy", function(d) { if(isNaN(d.total_social)) { console.log(d)} else {return y(d.total_social); }})
-            .attr("opacity", 0.5)
+            .attr("opacity", 0.75)
             .style("fill", function(d) {
                 return color(d.total_social)
             })
