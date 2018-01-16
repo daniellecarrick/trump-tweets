@@ -25,6 +25,9 @@ var r = d3.scaleLinear()
 var color = d3.scaleLinear()
     .range(['#d16c6a', '#fde1d7']);
 
+var opacity = d3.scaleLinear()
+    .range([0.5, 1])
+
 // parse the given data into something the computer understands
 //var parseTime = d3.timeParse("%m-%d-%Y %H:%M:%S");
 var parseTime = d3.timeParse("%_m/%_d/%_y %H:%M");
@@ -188,8 +191,10 @@ d3.csv("tweets.csv", function(error, data) {
             .attr("class", "dot")
             .attr("r", function(d) { return r(calculateRadius(d.total_social)); })
             .attr("cx", function(d) { return x(d.created_at); })
-            .attr("cy", function(d) { if(isNaN(d.total_social)) { console.log(d)} else {return y(d.total_social); }})
-            .attr("opacity", 0.75)
+            .attr("cy", function(d) { return y(d.total_social); })
+            .attr("opacity", function(d) {
+                return opacity(d.total_social)
+            })
             .style("fill", function(d) {
                 return color(d.total_social)
             })
