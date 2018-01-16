@@ -36,6 +36,7 @@ var formatEngagment = d3.format('.2s');
 
 var xAxis = d3.axisBottom(x)
     .ticks(styles.numberOfTicks)
+    .tickSize(3)
     .tickFormat(formatDate);
 
 var yAxis = d3.axisRight(y)
@@ -90,6 +91,8 @@ tip = d3.tip()
             return 'e';
         } else if (d.created_at > 1513314000000) { // equivalent to Dec 15 2017
             return 'w';
+        } else if (d.total_social > 80000) {
+            return 's';
         } else {
             return 'n';
         }
